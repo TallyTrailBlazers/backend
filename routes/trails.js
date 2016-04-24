@@ -34,9 +34,7 @@ router.get('/:trailId', function(req, res, next) {
                  weatherStem(lat, lon, function(err, weatherResult){
                      var response = {};
                      response.weather = weatherResult;
-                    res.send({
-                        response
-                    });
+                    res.send(response);
                 });
             }
         })
