@@ -4,6 +4,9 @@
         "password": "xV$bn%9?7jBb3YUQ",
         "database": "tallytrailblazers",
         "host": "tallytrailblazers.ct5hfzk6g1yd.us-east-1.rds.amazonaws.com",
-        "dialect": "mysql"
+        "dialect": "mysql",
+        "weather_stem_api_url": "https://leon.weatherstem.com/api",
+        "weather_stem_api_key": "ok865xj3",
+        "arcgis_url": "http://tlcdomi.leoncountyfl.gov/arcgis/rest/services/MapServices/TLCDOMI_FeatureAccess_Trailahassee_D_WM/MapServer/1/query?where=TRAILID%3D"
     }
 }

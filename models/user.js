@@ -1,6 +1,3 @@
-/**
- * Created by dunton on 4/23/16.
- */
 "use strict";
 
 module.exports = function(sequelize, DataTypes) {
@@ -8,7 +5,9 @@ module.exports = function(sequelize, DataTypes) {
         email: DataTypes.STRING
     }, {
         classMethods: {
-
+            associate: function(models) {
+                User.hasMany(models.Activity)
+            }
         }
     });
 
