@@ -28,14 +28,18 @@ router.post('/:activityId', function(req, res, next) {
     var body = req.body;
     var user = req.user;
     var activityId = req.params.activityId;
-    jobs = {
-        activity : function(callback) {
-            updateActivity(body, activityId, user, callback)
-        }
-    };
-    async.parallel(jobs, function(err, results){
-        res.send(results);
-    })
+    if(req.user) {
+        jobs = {
+            activity: function (callback) {
+                updateActivity(body, activityId, user, callback)
+            }
+        };
+        async.parallel(jobs, function (err, results) {
+            res.send(results);
+        })
+    }else {
+        res.status(401);
+    }
 });
 
 var updateActivity = function(body, activityId, user, callback){
