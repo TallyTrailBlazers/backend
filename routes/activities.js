@@ -6,17 +6,22 @@ var debug = require('debug')('backend:server');
 
 router.post('/', function(req, res, next) {
     var body = req.body;
-    jobs = {
-        activity : function(callback) {
-            createActivity(body, req.user, callback)
-        },
-        tips : function(callback) {
-            getTips(body, callback)
-        }
-    };
-    async.parallel(jobs, function(err, results){
-        res.send(results);
-    })
+    if(req.user){
+        jobs = {
+            activity : function(callback) {
+                createActivity(body, req.user, callback)
+            },
+            tips : function(callback) {
+                getTips(body, callback)
+            }
+        };
+        async.parallel(jobs, function(err, results){
+            res.send(results);
+        })
+    } else {
+        res.status(401);
+    }
+
 });
 
 router.post('/:activityId', function(req, res, next) {
