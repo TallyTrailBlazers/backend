@@ -13,6 +13,9 @@ router.post('/', function(req, res, next) {
             },
             tips : function(callback) {
                 getTips(body, callback)
+            },
+            comments : function(callback) {
+                getComments(body.trailId, callback)
             }
         };
         async.parallel(jobs, function(err, results){
@@ -55,7 +58,24 @@ var updateActivity = function(body, activityId, user, callback){
                 });
             }
         })
-}
+};
+
+var getComments = function(trailId, callback) {
+    models.Activity.findAll({
+        where: {
+            trailId: trailId,
+            comment: {
+                $ne: null
+            }
+        }
+    }).then(function(activities) {
+        if(activities) {
+            callback(null, activities)
+        } else {
+            callback(null, [])
+        }
+    });
+};
 
 var getTips = function(body, callback) {
     models.Tip.findAll({where: {category : body.type}})
