@@ -25,15 +25,16 @@ router.get('/:trailId', function(req, res, next) {
                 res.send(err);
             } else {
                 var trailResponse = {};
-                trailResponse.trailName = trailFeatures.TRAILNAME || trailFeatures.PARKNAME || trailFeatures.LOOPNAME || "Unknown";
-                trailResponse.trailLen = trailFeatures.TRAIL_LEN;
-                trailResponse.trailSurface = trailFeatures.TRAILSURFACE;
+                trailResponse.trailName = trailFeatures.attributes.TRAILNAME || trailFeatures.attributes.PARKNAME || trailFeatures.attributes.LOOPNAME || "Unknown";
+                trailResponse.trailLen = trailFeatures.attributes.TRAIL_LEN;
+                trailResponse.trailSurface = trailFeatures.attributes.TRAILSURFACE;
 
                 var lon = trailFeatures.geometry.paths[0][0][0];
                 var lat = trailFeatures.geometry.paths[0][0][1];
                  weatherStem(lat, lon, function(err, weatherResult){
                      var response = {};
                      response.weather = weatherResult;
+                     response.trail = trailResponse;
                     res.send(response);
                 });
             }
