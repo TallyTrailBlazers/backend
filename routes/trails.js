@@ -6,14 +6,8 @@ var tallyArcgis = require('../lib/tallyArcgis');
 var debug = require('debug')('backend:server');
 var async = require('async');
 
-router.get('/hello/:id', function(req, res, next) {
-    var trailId = req.params.id;
-    res.send({status: "ok"});
-});
-
 router.get('/:trailId', function(req, res, next) {
-    //FIX ARCCGIZ BULL SHIT ID RANGE
-    debug(req.user);
+    debug("User: ", req.user);
     var user = req.user;
     var trailId = req.params.trailId;
     var jobs;
@@ -47,10 +41,25 @@ router.get('/:trailId', function(req, res, next) {
 });
 
 var getUserActivity = function(userId, callback){
-    var userResponse = {};
-    userResponse.id = "1";
-    callback(null, userResponse);
+    if(userId.sub){
+        debug("Finding User:");
+        models.User.find({where: {facebookId : userId.sub},
+        include: [models.Activity]})
+            .done(function(user) {
+                debug("User " + user);
+                if(!user) {
+                    models.User.create({facebookId:userId.sub})
+                        .then(function(createUser) {
+                            debug("Finding User: "+ createUser);
+                            callback(null, createUser);
+                        })
+                } else {
+                    debug("Found User: "+ user);
+                    callback(null, user);
+                }
 
+            })
+    }
 };
 
 var buildTrailData = function(trailId, callback) {
@@ -58,7 +67,6 @@ var buildTrailData = function(trailId, callback) {
         if(err){
             callback(err, {});
         } else {
-            debug(trailFeatures);
             var trailResponse = {};
             trailResponse.trailName = trailFeatures.attributes.TRAILNAME || trailFeatures.attributes.PARKNAME || trailFeatures.attributes.LOOPNAME || "Unknown";
             trailResponse.trailLen = trailFeatures.attributes.TRAIL_LEN;
@@ -78,8 +86,7 @@ var buildTrailData = function(trailId, callback) {
             });
         }
     })
-
-}
+};
 
 function buildActivites(attributes) {
     var possible = ["WALKING", "HIKING", "BIKING", "RUNNING"];
