@@ -28,6 +28,7 @@ router.get('/:trailId', function(req, res, next) {
                 trailResponse.trailName = trailFeatures.attributes.TRAILNAME || trailFeatures.attributes.PARKNAME || trailFeatures.attributes.LOOPNAME || "Unknown";
                 trailResponse.trailLen = trailFeatures.attributes.TRAIL_LEN;
                 trailResponse.trailSurface = trailFeatures.attributes.TRAILSURFACE;
+                trailResponse.trailActivites = buildActivites(trailFeatures.attributes);
 
                 var lon = trailFeatures.geometry.paths[0][0][0];
                 var lat = trailFeatures.geometry.paths[0][0][1];
@@ -46,6 +47,13 @@ router.get('/:trailId', function(req, res, next) {
         res.send(err);
     }
 });
+
+function buildActivites(attributes) {
+    var possible = ["WALKING", "HIKING", "BIKING"];
+    return possible.filter(function(currentActivity){
+        return yesToNo(attributes[currentActivity])
+    })
+}
 
 function yesToNo(StringToBool) {
     return (StringToBool === "Yes") ? true : false;
