@@ -93,8 +93,8 @@ function buildActivites(attributes) {
     return possible.filter(function(currentActivity){
         return yesToNo(attributes[currentActivity])
     }).map(function(currentAct){
-        if(currentAct === "WALKING"){return "HIKING"}
-        return currentAct
+        if(currentAct === "WALKING"){return "hiking"}
+        return currentAct.toLowerCase()
     })
 }
 
