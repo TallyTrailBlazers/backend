@@ -4,41 +4,39 @@ var models  = require('../models');
 var weatherStem = require('../lib/weatherStem');
 var tallyArcgis = require('../lib/tallyArcgis');
 var debug = require('debug')('backend:server');
+var async = require('async');
 
-/* GET users listing. */
 router.get('/hello/:id', function(req, res, next) {
-    debug("Hello1");
     var trailId = req.params.id;
-    debug(trailId);
     res.send({status: "ok"});
 });
 
 router.get('/:trailId', function(req, res, next) {
-    debug("Hello");
+    //FIX ARCCGIZ BULL SHIT ID RANGE
     debug(req.user);
     var user = req.user;
     var trailId = req.params.trailId;
-    if(trailId) {
-        tallyArcgis(trailId, function(err, trailFeatures){
-            if(err){
-                debug("error");
-                res.send(err);
-            } else {
-                var trailResponse = {};
-                trailResponse.trailName = trailFeatures.attributes.TRAILNAME || trailFeatures.attributes.PARKNAME || trailFeatures.attributes.LOOPNAME || "Unknown";
-                trailResponse.trailLen = trailFeatures.attributes.TRAIL_LEN;
-                trailResponse.trailSurface = trailFeatures.attributes.TRAILSURFACE;
-                trailResponse.trailActivites = buildActivites(trailFeatures.attributes);
-
-                var lon = trailFeatures.geometry.paths[0][0][0];
-                var lat = trailFeatures.geometry.paths[0][0][1];
-                 weatherStem(lat, lon, function(err, weatherResult){
-                     var response = {};
-                     response.weather = weatherResult;
-                     response.trail = trailResponse;
-                    res.send(response);
-                });
+    var jobs;
+    if(trailId && user) {
+        jobs = {
+            trailData : function(callback) {
+                buildTrailData(trailId, callback)
+            },
+            activites : function(callback) {
+                getUserActivity(user, callback)
             }
+        };
+        async.parallel(jobs, function(err, results){
+            res.send(results);
+        })
+    } else if(trailId) {
+        jobs = {
+            trailData : function(callback) {
+                buildTrailData(trailId, callback)
+            }
+        };
+        async.parallel(jobs, function(err, results){
+            res.send(results);
         })
     } else {
         var err = new Error('Not Found');
@@ -48,15 +46,62 @@ router.get('/:trailId', function(req, res, next) {
     }
 });
 
+var getUserActivity = function(userId, callback){
+    var userResponse = {};
+    userResponse.id = "1";
+    callback(null, userResponse);
+
+};
+
+var buildTrailData = function(trailId, callback) {
+    tallyArcgis(trailId, function(err, trailFeatures){
+        if(err){
+            callback(err, {});
+        } else {
+            debug(trailFeatures);
+            var trailResponse = {};
+            trailResponse.trailName = trailFeatures.attributes.TRAILNAME || trailFeatures.attributes.PARKNAME || trailFeatures.attributes.LOOPNAME || "Unknown";
+            trailResponse.trailLen = trailFeatures.attributes.TRAIL_LEN;
+            trailResponse.trailSurface = trailFeatures.attributes.TRAILSURFACE;
+            trailResponse.trailActivites = buildActivites(trailFeatures.attributes);
+            trailResponse.difficulty = trailFeatures.attributes.DIFFICULTY;
+            trailResponse.trailId = trailFeatures.attributes.TRAILID;
+            trailResponse.path = getMapPath(trailFeatures.geometry.paths[0]);
+
+            var lon = trailFeatures.geometry.paths[0][0][0];
+            var lat = trailFeatures.geometry.paths[0][0][1];
+            weatherStem(lat, lon, function(err, weatherResult){
+                var response = {};
+                response.trail = trailResponse;
+                response.weather = weatherResult;
+                callback(null, response);
+            });
+        }
+    })
+
+}
+
 function buildActivites(attributes) {
-    var possible = ["WALKING", "HIKING", "BIKING"];
+    var possible = ["WALKING", "HIKING", "BIKING", "RUNNING"];
     return possible.filter(function(currentActivity){
         return yesToNo(attributes[currentActivity])
+    }).map(function(currentAct){
+        if(currentAct === "WALKING"){return "HIKING"}
+        return currentAct
     })
 }
 
 function yesToNo(StringToBool) {
     return (StringToBool === "Yes") ? true : false;
+}
+
+function getMapPath(PathArray) {
+    return PathArray.map(function(CurrentPathArray){
+        return {
+            "longitude" : CurrentPathArray[0],
+            "latitude" : CurrentPathArray[1]
+        }
+    })
 }
 
 module.exports = router;

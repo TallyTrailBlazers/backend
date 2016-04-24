@@ -2,7 +2,8 @@
 
 module.exports = function(sequelize, DataTypes) {
     var User = sequelize.define("User", {
-        email: DataTypes.STRING
+        email: DataTypes.STRING,
+        facebookId : DataTypes.STRING
     }, {
         classMethods: {
             associate: function(models) {

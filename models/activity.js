@@ -2,8 +2,9 @@
 
 module.exports = function(sequelize, DataTypes) {
     var Activity = sequelize.define("Activity", {
-        start_timestamp: DataTypes.DATE,
-        end_timestamp: DataTypes.DATE,
+        start: DataTypes.DATE,
+        end: DataTypes.DATE,
+        type: DataTypes.ENUM('hiking', 'running', 'biking'),
         rank: DataTypes.INTEGER,
         comment: DataTypes.STRING
     }, {
@@ -14,3 +15,5 @@ module.exports = function(sequelize, DataTypes) {
 
     return Activity;
 };
+
+
