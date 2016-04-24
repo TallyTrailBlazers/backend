@@ -1,7 +1,7 @@
 {
     "development": {
         "username": "rdsRoot",
-        "password": "xV$bn%9?7jBb3YUQ",
+        "password": "",
         "database": "tallytrailblazers",
         "host": "tallytrailblazers.ct5hfzk6g1yd.us-east-1.rds.amazonaws.com",
         "dialect": "mysql",

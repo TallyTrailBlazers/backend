@@ -24,9 +24,15 @@ router.get('/:trailId', function(req, res, next) {
                 debug("error");
                 res.send(err);
             } else {
+                var trailResponse = {};
+                trailResponse.trailName = trailFeatures.TRAILNAME || trailFeatures.PARKNAME || trailFeatures.LOOPNAME || "Unknown";
+                trailResponse.trailLen = trailFeatures.TRAIL_LEN;
+                trailResponse.trailSurface = trailFeatures.TRAILSURFACE;
                 var lon = trailFeatures.geometry.paths[0][0][0];
                 var lat = trailFeatures.geometry.paths[0][0][1];
                  weatherStem(lat, lon, function(err, weatherResult){
+                     var reponse = {};
+                     response.weather = weatherResult
                     res.send({
                         "trailInfo": weatherResult
                     });
